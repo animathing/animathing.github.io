@@ -1,1 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for a modern minimalist feel with ornaments */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Even darker, near-black */
+            /* Subtle grid pattern ornament */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        /* Custom spinner animation */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: #4f46e5; /* Indigo */
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Fade-in animation for the main container */
+        .fade-in {
+            animation: fadeInAnimation 0.8s ease-in-out forwards;
+        }
+        @keyframes fadeInAnimation {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Glow effect for the generator section */
+        .generator-glow {
+            position: relative;
+            z-index: 1;
+        }
+        .generator-glow::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px;
+            right: -2px; bottom: -2px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+            border-radius: 1.2rem; /* slightly larger than the container's rounded-2xl */
+            z-index: -1;
+            filter: blur(20px);
+            opacity: 0.5;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .generator-glow:hover::before {
+            opacity: 0.8;
+        }
+        /* Custom styling for the select dropdown */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+        }
+    </style>
+</head>
+<body class="text-gray-300 flex items-center justify-center min-h-screen p-4">
 
+    <main class="w-full max-w-4xl mx-auto fade-in">
+        <!-- Header Section -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold mb-3 text-white flex items-center justify-center gap-3">
+                <!-- Sparkle Icon Ornament -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400"><path d="M12 3L9.27 9.27L3 12l6.27 2.73L12 21l2.73-6.27L21 12l-6.27-2.73L12 3z"/><path d="M5 21L7 17"/><path d="M17 17l2 4"/></svg>
+                AI Image Generator
+            </h1>
+            <p class="text-gray-400 text-lg">
+                Turn your ideas into stunning visuals with the power of AI.
+            </p>
+        </div>
+
+        <!-- Generator Section with Glow Ornament -->
+        <div class="generator-glow">
+          <div class="bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-gray-700/50 shadow-2xl shadow-black/20">
+              <!-- Input and Button -->
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+                  <input type="text" id="promptInput" placeholder="What's your idea?" class="md:col-span-6 w-full px-5 py-4 bg-gray-800/80 border-2 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 text-white placeholder-gray-500">
+                  <select id="styleSelector" class="md:col-span-3 w-full px-5 py-4 bg-gray-800/80 border-2 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 text-white cursor-pointer">
+                      <option value="">Other Style</option>
+                      <option value="Pixel Art">Pixel Art</option>
+                      <option value="Retro">Retro</option>
+                      <option value="Futuristic">Futuristic</option>
+                      <option value="Realistic">Realistic</option>
+                      <option value="Cartoon">Cartoon</option>
+                      <option value="Anime">Anime</option>
+                      <option value="Fantasy Art">Fantasy Art</option>
+                      <option value="Cyberpunk">Cyberpunk</option>
+                      <option value="Steampunk">Steampunk</option>
+                      <option value="Vintage Photo">Vintage Photo</option>
+                      <option value="Abstract">Abstract</option>
+                  </select>
+                  <button id="generateBtn" class="md:col-span-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-100 flex items-center justify-center gap-2">
+                      Generate Image
+                  </button>
+              </div>
+
+              <!-- Image Display Area -->
+              <div id="imageContainer" class="w-full aspect-[4/3] bg-black/30 border border-dashed border-gray-700 rounded-xl flex items-center justify-center overflow-hidden transition-all duration-300">
+                  <!-- Loading Spinner -->
+                  <div id="loader" class="hidden text-center">
+                      <div class="spinner mx-auto"></div>
+                      <p class="mt-4 text-gray-400">Generating image... Please wait.</p>
+                  </div>
+                  <!-- Message Area -->
+                  <p id="message" class="text-gray-500">Your image will appear here.</p>
+                  <!-- Generated Image will be appended here -->
+              </div>
+          </div>
+        </div>
+
+        <!-- Error Message Box -->
+        <div id="errorBox" class="hidden mt-6 p-4 bg-red-500/10 border border-red-500/30 text-red-300 rounded-lg">
+            <p id="errorMessage"></p>
+        </div>
+    </main>
+
+    <script>
+        // --- DOM Element References ---
+        const promptInput = document.getElementById('promptInput');
+        const styleSelector = document.getElementById('styleSelector');
+        const generateBtn = document.getElementById('generateBtn');
+        const imageContainer = document.getElementById('imageContainer');
+        const loader = document.getElementById('loader');
+        const message = document.getElementById('message');
+        const errorBox = document.getElementById('errorBox');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // --- Event Listeners ---
+        generateBtn.addEventListener('click', generateImage);
+        promptInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                generateImage();
+            }
+        });
+
+        /**
+         * Main function to generate an image from the user's prompt.
+         */
+        async function generateImage() {
+            const prompt = promptInput.value.trim();
+            const style = styleSelector.value;
+
+            if (!prompt) {
+                showError("Please enter a prompt to generate an image.");
+                return;
+            }
+
+            // Combine prompt and style
+            const finalPrompt = style ? `${prompt}, ${style} style` : prompt;
+            
+            showLoading(true);
+            clearError();
+
+            try {
+                // URL encode the prompt for the Pollinations API
+                const encodedPrompt = encodeURIComponent(finalPrompt);
+                const apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+                
+                // Fetch the image directly from the Pollinations API.
+                // This API returns the image directly, not a JSON object.
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // The response is the image data itself. We get it as a blob.
+                const imageBlob = await response.blob();
+                
+                // Create a temporary URL from the blob to display the image.
+                const imageUrl = URL.createObjectURL(imageBlob);
+
+                displayImage(imageUrl, finalPrompt);
+
+            } catch (error) {
+                console.error('Error generating image:', error);
+                showError(`Failed to generate image. Please try again. (${error.message})`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        /**
+         * Displays the generated image.
+         * @param {string} imageUrl - The URL of the image (can be a blob URL).
+         * @param {string} altText - The alt text for the image.
+         */
+        function displayImage(imageUrl, altText) {
+            imageContainer.innerHTML = ''; // Clear container
+            imageContainer.classList.remove('border-dashed', 'border-gray-700');
+            imageContainer.classList.add('border-transparent');
+
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = altText;
+            img.className = 'w-full h-full object-contain';
+            
+            // Clean up the blob URL after the image has loaded to free up memory
+            img.onload = () => {
+                URL.revokeObjectURL(img.src);
+            }
+
+            imageContainer.appendChild(img);
+        }
+
+        /**
+         * Updates the UI to show or hide the loading state.
+         * @param {boolean} isLoading - Whether to show the loader.
+         */
+        function showLoading(isLoading) {
+            if (isLoading) {
+                loader.classList.remove('hidden');
+                generateBtn.disabled = true;
+                generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                message.classList.add('hidden');
+                const existingImage = imageContainer.querySelector('img');
+                if (existingImage) existingImage.style.display = 'none';
+            } else {
+                loader.classList.add('hidden');
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        /**
+         * Displays an error message.
+         * @param {string} text - The error message to display.
+         */
+        function showError(text) {
+            errorMessage.textContent = text;
+            errorBox.classList.remove('hidden');
+            if (!imageContainer.querySelector('img')) {
+                imageContainer.innerHTML = '';
+                message.classList.remove('hidden');
+                imageContainer.appendChild(message);
+                imageContainer.classList.add('border-dashed', 'border-gray-700');
+                imageContainer.classList.remove('border-transparent');
+            } else {
+                const existingImage = imageContainer.querySelector('img');
+                if (existingImage) existingImage.style.display = 'block';
+            }
+        }
+
+        /**
+         * Hides the error message box.
+         */
+        function clearError() {
+            errorBox.classList.add('hidden');
+            errorMessage.textContent = '';
+        }
+    </script>
+</body>
+</html>
