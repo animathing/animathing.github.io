@@ -1,86 +1,331 @@
-
 <!DOCTYPE html>
-<html lang="en" w-tid="1">
-<head w-tid="3">
-    
-<title>AI Music Studio</title>
-<meta property="og:title" content="AI Music Studio"/>
-<meta property="og:url" content="https://ai-music-studio--wiseflute0316569.on.websim.com?v=1"/>
-<meta property="og:type" content="website"/>
-<meta property="twitter:card" content="summary_large_image"/>
-<meta property="og:image" content="https://images.websim.com/v1/project/keexadb09h5ojw7a9zdt/revision/1/1200.jpeg"/>
-<meta property="twitter:image" content="https://images.websim.com/v1/project/keexadb09h5ojw7a9zdt/revision/1/1200.jpeg"/>
-<link  rel="canonical" href="https://websim.com/@wiseflute0316569/ai-music-studio">
-<link rel="stylesheet" href="https://api.websim.com/fonts.css?v=158dd06b176511972702ba58d011db035d1dfb68">
-<link rel="stylesheet" href="https://api.websim.com/ctxmenu.css?v=158dd06b176511972702ba58d011db035d1dfb68">
-<script class="websim-injected">__WEBSIM_DATA__={"home":false,"hostOrigin":"https://websim.com","apiOrigin":"https://api.websim.com","isTopLevelFrame":true,"project_id":"keexadb09h5ojw7a9zdt","project_version":1,"route":{"type":"slug","username":"wiseflute0316569","slug":"ai-music-studio","version":1},"baseUrl":"https://ai-music-studio--wiseflute0316569.on.websim.com"}</script>
-<script class="websim-injected" src="https://api.websim.com/dist/index.js?v=158dd06b176511972702ba58d011db035d1dfb68"></script>
-<meta charset="UTF-8" w-tid="5"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" w-tid="7"/>
-    <!--title>AI Music Studio</title-->    
-    <link rel="stylesheet" href="style.css" w-tid="11"/>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" w-tid="13"/>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Music Studio | Neon</title>
+
+    <!-- Meta Tags untuk SEO dan Social Sharing -->
+    <meta name="description" content="Ciptakan musik dengan kekuatan AI. Bangun ketukan, buat melodi, dan jelajahi suara baru di Neon AI Music Studio.">
+    <meta property="og:title" content="AI Music Studio | Neon"/>
+    <meta property="og:description" content="Ciptakan musik dengan kekuatan AI. Bangun ketukan, buat melodi, dan jelajahi suara baru."/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="https://placehold.co/1200x630/0a0a0a/ffffff?text=AI+Music+Studio"/>
+    <meta property="og:url" content="https://example.com"/>
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:image" content="https://placehold.co/1200x630/0a0a0a/ffffff?text=AI+Music+Studio"/>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Orbitron -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tone.js untuk Audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+    <style>
+        /* Custom Styles & Tailwind Config */
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        /* Custom glow effect */
+        .glow {
+            box-shadow: 0 0 5px #00f, 0 0 10px #00f, 0 0 15px #00f;
+        }
+        .glow-pink {
+            box-shadow: 0 0 5px #f0f, 0 0 10px #f0f, 0 0 15px #f0f;
+        }
+
+        /* Custom kelas untuk transisi */
+        .btn {
+            @apply px-5 py-3 rounded-lg font-bold text-white uppercase tracking-wider transition-all duration-300 ease-in-out;
+        }
+        .btn-primary {
+            @apply bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/50;
+        }
+        .btn-secondary {
+            @apply bg-pink-600 hover:bg-pink-500 hover:shadow-lg hover:shadow-pink-500/50;
+        }
+        .btn:disabled {
+            @apply bg-gray-700 text-gray-500 cursor-not-allowed hover:shadow-none;
+        }
+        
+        /* Gaya untuk sampler pad */
+        .sampler-pad {
+            @apply w-full h-24 sm:h-28 md:h-32 bg-gray-800/50 border-2 border-blue-500/50 rounded-lg cursor-pointer flex items-center justify-center text-lg font-bold transition-all duration-150 ease-in-out transform hover:scale-105 hover:bg-blue-600/70;
+            backdrop-filter: blur(5px);
+        }
+        .sampler-pad.active {
+            @apply scale-105 bg-blue-500 shadow-lg shadow-blue-400/50;
+            transform: scale(1.05) translateY(-2px);
+        }
+        
+        /* Spinner untuk loading */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: #00aaff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Visualizer bar */
+        .visualizer-bar {
+            @apply w-full bg-blue-500/80 rounded-t-sm transition-all duration-100 ease-out;
+            box-shadow: 0 0 3px #00f, 0 0 5px #00f;
+        }
+    </style>
 </head>
-<body w-tid="15">
-    <div id="app-container" w-tid="17">
-        <header w-tid="19">
-            <h1 w-tid="21">AI Music Studio</h1>
-            <div id="master-controls" w-tid="23">
-                <label for="volume" w-tid="25">Volume:</label>
-                <input type="range" id="volume" min="0" max="1" value="0.5" step="0.01" w-tid="27"/>
+<body class="min-h-screen bg-black/90 flex items-center justify-center p-4">
+
+    <div id="app-container" class="w-full max-w-5xl mx-auto bg-gray-900/60 border border-gray-700 rounded-2xl shadow-2xl shadow-blue-500/20 p-4 sm:p-6 md:p-8 space-y-8">
+        
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-700 pb-6">
+            <h1 class="text-3xl md:text-4xl font-black tracking-wider text-white uppercase">
+                AI <span class="text-blue-400">Music</span> Studio
+            </h1>
+            <div id="master-controls" class="flex items-center gap-3">
+                <label for="volume" class="font-semibold">VOLUME</label>
+                <input type="range" id="volume" min="0" max="1" value="0.5" step="0.01" class="w-32 cursor-pointer"/>
             </div>
         </header>
 
-        <main w-tid="29">
-            <section id="instrument-sampler" w-tid="31">
-                <h2 w-tid="33">Sound Sampler</h2>
-                <div id="sampler-pads" class="control-panel" w-tid="35">
-                    <!-- Sample pads will be generated by JS -->
-                </div>
-            </section>
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Kolom Kiri: Sampler & Visualizer -->
+            <div class="space-y-8">
+                <!-- Instrument Sampler -->
+                <section id="instrument-sampler">
+                    <h2 class="text-2xl font-bold mb-4 text-center sm:text-left">SOUND SAMPLER</h2>
+                    <div id="sampler-pads" class="grid grid-cols-3 gap-3">
+                        <!-- Sample pads akan dibuat oleh JS -->
+                    </div>
+                </section>
+                 <!-- Visualizer -->
+                <section id="visualizer-section">
+                    <h2 class="text-2xl font-bold mb-4 text-center sm:text-left">BEAT LIGHTS</h2>
+                    <div id="visualizer-container" class="h-24 bg-gray-800/50 rounded-lg p-2 flex items-end justify-between gap-1 border border-gray-700">
+                         <!-- Visualizer bar akan dibuat oleh JS -->
+                    </div>
+                </section>
+            </div>
 
-            <section id="ai-song-generator" w-tid="37">
-                <h2 w-tid="39">Automatic Song Maker</h2>
-                <div class="control-panel" w-tid="41">
-                    <label for="ai-prompt" w-tid="43">Describe your song idea (e.g., "energetic techno beat", "chill lofi hip hop"):</label>
-                    <input type="text" id="ai-prompt" placeholder="e.g., funky space disco" w-tid="45"/>
-                    <button id="generate-song-btn" w-tid="47">Generate Beat</button>
-                    <div id="loading-indicator" style="display: none;" w-tid="49">Generating... <div class="spinner" w-tid="51"></div></div>
-                </div>
-                <div id="generated-song-info" w-tid="53">
-                    <h3 id="song-title" w-tid="55"></h3>
-                    <p id="song-bpm" w-tid="57"></p>
-                </div>
-            </section>
+            <!-- Kolom Kanan: AI Generator & Kontrol -->
+            <div class="space-y-8">
+                 <!-- AI Song Generator -->
+                <section id="ai-song-generator" class="bg-gray-800/50 border border-gray-700 p-6 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4">AUTOMATIC SONG MAKER</h2>
+                    <div class="space-y-4">
+                        <label for="ai-prompt" class="block">Deskripsikan ide lagu Anda:</label>
+                        <input type="text" id="ai-prompt" placeholder="contoh: funky space disco" class="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="generate-song-btn" class="btn btn-primary w-full">GENERATE BEAT</button>
+                        <div id="loading-indicator" class="hidden items-center justify-center gap-3 text-lg">
+                            <span>Generating...</span>
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <div id="generated-song-info" class="mt-4 text-center">
+                        <h3 id="song-title" class="text-xl font-bold text-blue-300"></h3>
+                        <p id="song-bpm" class="text-md text-gray-400"></p>
+                    </div>
+                </section>
 
-            <section id="sequencer-controls" w-tid="59">
-                <h2 w-tid="61">Playback</h2>
-                <div class="control-panel" w-tid="63">
-                    <button id="play-sequence-btn" disabled w-tid="65">Play AI Beat</button>
-                    <button id="stop-sequence-btn" disabled w-tid="67">Stop</button>
-                    <label for="loop-sequence" w-tid="69">Loop:</label>
-                    <input type="checkbox" id="loop-sequence" checked w-tid="71"/>
-                </div>
-            </section>
-            
-            <section id="visualizer-section" w-tid="73">
-                <h2 w-tid="75">Beat Lights</h2>
-                <div id="visualizer-container" w-tid="77">
-                    <!-- Visualizer bars will be generated by JS -->
-                </div>
-            </section>
+                <!-- Kontrol Playback -->
+                <section id="sequencer-controls" class="bg-gray-800/50 border border-gray-700 p-6 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4">PLAYBACK</h2>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                         <button id="play-sequence-btn" class="btn btn-secondary flex-1" disabled>PLAY AI BEAT</button>
+                         <button id="stop-sequence-btn" class="btn bg-gray-700 hover:bg-red-600 flex-1" disabled>STOP</button>
+                    </div>
+                     <div class="flex items-center justify-center mt-4">
+                        <input type="checkbox" id="loop-sequence" checked class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
+                        <label for="loop-sequence" class="ml-2">LOOP</label>
+                    </div>
+                </section>
+            </div>
         </main>
 
-        <footer w-tid="79">
-            <p w-tid="81">Neon AI Music Studio</p>
+        <!-- Footer -->
+        <footer class="text-center border-t border-gray-700 pt-6 mt-4">
+            <p class="text-gray-500">Neon AI Music Studio</p>
         </footer>
     </div>
-    <script type="importmap" w-tid="83">
-    {
-        "imports": {}
-    }
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Inisialisasi Tone.js setelah interaksi pengguna
+        const initAudio = async () => {
+            await Tone.start();
+            console.log("AudioContext dimulai");
+            document.removeEventListener('click', initAudio); // Hapus listener setelah inisialisasi
+        };
+        document.addEventListener('click', initAudio);
+
+        // Referensi Elemen DOM
+        const volumeControl = document.getElementById('volume');
+        const samplerPadsContainer = document.getElementById('sampler-pads');
+        const generateBtn = document.getElementById('generate-song-btn');
+        const playBtn = document.getElementById('play-sequence-btn');
+        const stopBtn = document.getElementById('stop-sequence-btn');
+        const loopCheckbox = document.getElementById('loop-sequence');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const songTitleEl = document.getElementById('song-title');
+        const songBpmEl = document.getElementById('song-bpm');
+        const visualizerContainer = document.getElementById('visualizer-container');
+
+        // Pengaturan Audio
+        Tone.Destination.volume.value = Tone.gainToDb(0.5); // Atur volume awal
+        
+        // --- 1. Sound Sampler ---
+        const samplerSynths = {};
+        const samplerNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4'];
+        
+        samplerNotes.forEach(note => {
+            // Buat synth untuk setiap pad
+            samplerSynths[note] = new Tone.Synth({
+                oscillator: { type: 'fmsquare' },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.8 }
+            }).toDestination();
+
+            // Buat elemen pad
+            const pad = document.createElement('div');
+            pad.classList.add('sampler-pad');
+            pad.textContent = note;
+            pad.dataset.note = note;
+            samplerPadsContainer.appendChild(pad);
+
+            // Event listener untuk memainkan suara
+            pad.addEventListener('mousedown', () => {
+                if (Tone.context.state !== 'running') return;
+                samplerSynths[note].triggerAttackRelease(note, '8n');
+                pad.classList.add('active');
+            });
+            pad.addEventListener('mouseup', () => pad.classList.remove('active'));
+            pad.addEventListener('mouseleave', () => pad.classList.remove('active'));
+        });
+
+        // --- 2. Visualizer ---
+        const numBars = 24;
+        for (let i = 0; i < numBars; i++) {
+            const bar = document.createElement('div');
+            bar.classList.add('visualizer-bar');
+            bar.style.height = '1%';
+            visualizerContainer.appendChild(bar);
+        }
+        const visualizerBars = visualizerContainer.querySelectorAll('.visualizer-bar');
+        
+        const meter = new Tone.Meter();
+        Tone.Destination.connect(meter);
+
+        function updateVisualizer() {
+            if (Tone.Transport.state === 'started') {
+                const level = Tone.dbToGain(meter.getValue());
+                visualizerBars.forEach((bar, i) => {
+                    const height = Math.max(1, level * 100 * (1 - Math.abs(i - numBars / 2) / (numBars / 1.5)) * 2);
+                    bar.style.height = `${height}%`;
+                });
+            } else {
+                 visualizerBars.forEach(bar => {
+                    bar.style.height = `1%`;
+                });
+            }
+            requestAnimationFrame(updateVisualizer);
+        }
+        updateVisualizer();
+
+        // --- 3. AI Song Generator & Sequencer ---
+        let currentSequence;
+        
+        generateBtn.addEventListener('click', () => {
+            const prompt = document.getElementById('ai-prompt').value || "funky space disco";
+            
+            // Tampilkan loading & nonaktifkan tombol
+            loadingIndicator.style.display = 'flex';
+            generateBtn.disabled = true;
+            playBtn.disabled = true;
+            stopBtn.disabled = true;
+
+            // Hentikan sekuens yang sedang berjalan
+            if (Tone.Transport.state === 'started') {
+                Tone.Transport.stop();
+                Tone.Transport.clear(currentSequence);
+            }
+            
+            // Simulasi pemrosesan AI
+            setTimeout(() => {
+                // Buat pola sekuens sederhana berdasarkan prompt (simulasi)
+                const bpm = 120 + (prompt.length % 20); // BPM antara 120-140
+                const pattern = [
+                    ['C4', 'E4', 'G4'], 'A3', null, 'D4',
+                    ['C4', 'F4'], null, 'E4', null,
+                ];
+                
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'triangle8' }
+                }).toDestination();
+
+                currentSequence = new Tone.Sequence((time, note) => {
+                    if (note) synth.triggerAttackRelease(note, '8n', time);
+                }, pattern, "8n");
+                
+                Tone.Transport.bpm.value = bpm;
+                Tone.Transport.start();
+                
+                // Update UI
+                songTitleEl.textContent = `"${prompt}"`;
+                songBpmEl.textContent = `${bpm} BPM`;
+                loadingIndicator.style.display = 'none';
+                generateBtn.disabled = false;
+                playBtn.disabled = false;
+                stopBtn.disabled = false;
+
+                // Set status awal tombol play/stop
+                playBtn.textContent = 'PAUSE AI BEAT';
+
+            }, 2500); // Tunda 2.5 detik
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (!currentSequence) return;
+
+            if (Tone.Transport.state === 'started') {
+                Tone.Transport.pause();
+                playBtn.textContent = 'PLAY AI BEAT';
+            } else {
+                Tone.Transport.start();
+                playBtn.textContent = 'PAUSE AI BEAT';
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+             if (!currentSequence) return;
+             Tone.Transport.stop();
+             playBtn.textContent = 'PLAY AI BEAT';
+        });
+
+        loopCheckbox.addEventListener('change', () => {
+            if (currentSequence) {
+                currentSequence.loop = loopCheckbox.checked;
+            }
+        });
+        
+        // --- 4. Kontrol Volume Master ---
+        volumeControl.addEventListener('input', (e) => {
+            const volumeDb = Tone.gainToDb(parseFloat(e.target.value));
+            Tone.Destination.volume.rampTo(volumeDb, 0.1);
+        });
+    });
     </script>
-    <script src="script.js" w-tid="85"></script>
 </body>
 </html>
-
