@@ -128,12 +128,13 @@
                     <h2 class="text-2xl font-bold mb-4">AUTOMATIC SONG MAKER</h2>
                     <div class="space-y-4">
                         <label for="ai-prompt" class="block">Deskripsikan ide lagu Anda:</label>
-                        <input type="text" id="ai-prompt" placeholder="contoh: funky space disco" class="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="ai-prompt" placeholder="contoh: chill lofi hip hop" class="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <button id="generate-song-btn" class="btn btn-primary w-full">GENERATE BEAT</button>
                         <div id="loading-indicator" class="hidden items-center justify-center gap-3 text-lg">
                             <span>Generating...</span>
                             <div class="spinner"></div>
                         </div>
+                         <p id="error-message" class="text-red-400 text-center"></p>
                     </div>
                     <div id="generated-song-info" class="mt-4 text-center">
                         <h3 id="song-title" class="text-xl font-bold text-blue-300"></h3>
@@ -166,11 +167,12 @@
     document.addEventListener('DOMContentLoaded', () => {
         // Inisialisasi Tone.js setelah interaksi pengguna
         const initAudio = async () => {
-            await Tone.start();
-            console.log("AudioContext dimulai");
-            document.removeEventListener('click', initAudio); // Hapus listener setelah inisialisasi
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+                console.log("AudioContext dimulai");
+            }
         };
-        document.addEventListener('click', initAudio);
+        document.body.addEventListener('click', initAudio, { once: true });
 
         // Referensi Elemen DOM
         const volumeControl = document.getElementById('volume');
@@ -183,29 +185,25 @@
         const songTitleEl = document.getElementById('song-title');
         const songBpmEl = document.getElementById('song-bpm');
         const visualizerContainer = document.getElementById('visualizer-container');
+        const errorMessageEl = document.getElementById('error-message');
 
         // Pengaturan Audio
-        Tone.Destination.volume.value = Tone.gainToDb(0.5); // Atur volume awal
+        Tone.Destination.volume.value = Tone.gainToDb(0.5);
         
         // --- 1. Sound Sampler ---
         const samplerSynths = {};
         const samplerNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4'];
         
         samplerNotes.forEach(note => {
-            // Buat synth untuk setiap pad
             samplerSynths[note] = new Tone.Synth({
                 oscillator: { type: 'fmsquare' },
                 envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.8 }
             }).toDestination();
-
-            // Buat elemen pad
             const pad = document.createElement('div');
             pad.classList.add('sampler-pad');
             pad.textContent = note;
             pad.dataset.note = note;
             samplerPadsContainer.appendChild(pad);
-
-            // Event listener untuk memainkan suara
             pad.addEventListener('mousedown', () => {
                 if (Tone.context.state !== 'running') return;
                 samplerSynths[note].triggerAttackRelease(note, '8n');
@@ -224,81 +222,133 @@
             visualizerContainer.appendChild(bar);
         }
         const visualizerBars = visualizerContainer.querySelectorAll('.visualizer-bar');
-        
         const meter = new Tone.Meter();
         Tone.Destination.connect(meter);
-
         function updateVisualizer() {
-            if (Tone.Transport.state === 'started') {
-                const level = Tone.dbToGain(meter.getValue());
-                visualizerBars.forEach((bar, i) => {
-                    const height = Math.max(1, level * 100 * (1 - Math.abs(i - numBars / 2) / (numBars / 1.5)) * 2);
-                    bar.style.height = `${height}%`;
-                });
-            } else {
-                 visualizerBars.forEach(bar => {
-                    bar.style.height = `1%`;
-                });
-            }
+            const level = Tone.Transport.state === 'started' ? Tone.dbToGain(meter.getValue()) : 0;
+            visualizerBars.forEach((bar, i) => {
+                const height = Math.max(1, level * 100 * (1 - Math.abs(i - numBars / 2) / (numBars / 1.5)) * 2);
+                bar.style.height = `${height}%`;
+            });
             requestAnimationFrame(updateVisualizer);
         }
         updateVisualizer();
 
         // --- 3. AI Song Generator & Sequencer ---
-        let currentSequence;
-        
-        generateBtn.addEventListener('click', () => {
-            const prompt = document.getElementById('ai-prompt').value || "funky space disco";
-            
-            // Tampilkan loading & nonaktifkan tombol
+        let currentSequences = [];
+        let kick, snare, synth;
+
+        const stopAndClearMusic = () => {
+            if (Tone.Transport.state === 'started') {
+                Tone.Transport.stop();
+            }
+            currentSequences.forEach(seq => {
+                seq.stop();
+                seq.dispose();
+            });
+            currentSequences = [];
+            if(kick) kick.dispose();
+            if(snare) snare.dispose();
+            if(synth) synth.dispose();
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            const userPrompt = document.getElementById('ai-prompt').value.trim();
+            if (!userPrompt) {
+                errorMessageEl.textContent = "Mohon masukkan deskripsi lagu.";
+                return;
+            }
+            await initAudio(); // Pastikan audio context aktif
+
             loadingIndicator.style.display = 'flex';
             generateBtn.disabled = true;
             playBtn.disabled = true;
             stopBtn.disabled = true;
+            errorMessageEl.textContent = "";
+            songTitleEl.textContent = "";
+            songBpmEl.textContent = "";
 
-            // Hentikan sekuens yang sedang berjalan
-            if (Tone.Transport.state === 'started') {
-                Tone.Transport.stop();
-                Tone.Transport.clear(currentSequence);
-            }
-            
-            // Simulasi pemrosesan AI
-            setTimeout(() => {
-                // Buat pola sekuens sederhana berdasarkan prompt (simulasi)
-                const bpm = 120 + (prompt.length % 20); // BPM antara 120-140
-                const pattern = [
-                    ['C4', 'E4', 'G4'], 'A3', null, 'D4',
-                    ['C4', 'F4'], null, 'E4', null,
-                ];
-                
-                const synth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: 'triangle8' }
-                }).toDestination();
+            stopAndClearMusic();
 
-                currentSequence = new Tone.Sequence((time, note) => {
-                    if (note) synth.triggerAttackRelease(note, '8n', time);
-                }, pattern, "8n");
+            try {
+                // Konfigurasi untuk Gemini API
+                const apiKey = ""; // Disediakan oleh environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const systemPrompt = `You are a music generator assistant. Based on the user's prompt, create a simple 16-step musical pattern. Respond ONLY with a JSON object.
+                The JSON must have these properties: "bpm" (number between 80-160), "synthType" (string, one of: "fmsquare", "sawtooth", "triangle8", "pulse"), "kickPattern" (array of 16 numbers, 1 for a hit, 0 for a rest), "snarePattern" (array of 16 numbers), and "synthPattern" (array of 16 strings, containing musical notes like "C4", "G3", or null for a rest).
+                Example for "funky": { "bpm": 120, "synthType": "fmsquare", "kickPattern": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0], "snarePattern": [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], "synthPattern": ["C4", null, "G4", "C4", null, "A4", null, "G4", "F4", null, "C4", null, null, "D4", "E4", null] }`;
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: `System prompt: ${systemPrompt}. User prompt: "${userPrompt}"` }]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
                 
-                Tone.Transport.bpm.value = bpm;
+                if (!result.candidates || !result.candidates[0].content.parts[0].text) {
+                     throw new Error("Respon AI tidak valid.");
+                }
+
+                const musicData = JSON.parse(result.candidates[0].content.parts[0].text);
+
+                // Membuat instrumen
+                kick = new Tone.MembraneSynth({ pitchDecay: 0.02, octaves: 6, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.5, sustain: 0.01, release: 0.4, attackCurve: "exponential" } }).toDestination();
+                snare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.005, decay: 0.1, sustain: 0 } }).toDestination();
+                synth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: musicData.synthType || 'fmsquare' } }).toDestination();
+
+                // Membuat sekuens
+                const kickSequence = new Tone.Sequence((time, value) => {
+                    if (value) kick.triggerAttack("C1", time);
+                }, musicData.kickPattern, "16n").start(0);
+
+                const snareSequence = new Tone.Sequence((time, value) => {
+                    if (value) snare.triggerAttack(time);
+                }, musicData.snarePattern, "16n").start(0);
+
+                const synthSequence = new Tone.Sequence((time, note) => {
+                    if (note) synth.triggerAttackRelease(note, "16n", time);
+                }, musicData.synthPattern, "16n").start(0);
+                
+                currentSequences = [kickSequence, snareSequence, synthSequence];
+                loopCheckbox.dispatchEvent(new Event('change')); // Terapkan status loop
+
+                Tone.Transport.bpm.value = musicData.bpm;
                 Tone.Transport.start();
-                
+
                 // Update UI
-                songTitleEl.textContent = `"${prompt}"`;
-                songBpmEl.textContent = `${bpm} BPM`;
+                songTitleEl.textContent = `"${userPrompt}"`;
+                songBpmEl.textContent = `${musicData.bpm} BPM`;
+                playBtn.textContent = 'PAUSE AI BEAT';
+
+            } catch (error) {
+                console.error("Error generating song:", error);
+                errorMessageEl.textContent = "Gagal membuat musik. Coba lagi.";
+            } finally {
                 loadingIndicator.style.display = 'none';
                 generateBtn.disabled = false;
                 playBtn.disabled = false;
                 stopBtn.disabled = false;
-
-                // Set status awal tombol play/stop
-                playBtn.textContent = 'PAUSE AI BEAT';
-
-            }, 2500); // Tunda 2.5 detik
+            }
         });
 
         playBtn.addEventListener('click', () => {
-            if (!currentSequence) return;
-
+            if (currentSequences.length === 0) return;
             if (Tone.Transport.state === 'started') {
                 Tone.Transport.pause();
                 playBtn.textContent = 'PLAY AI BEAT';
@@ -309,15 +359,14 @@
         });
 
         stopBtn.addEventListener('click', () => {
-             if (!currentSequence) return;
+             if (currentSequences.length === 0) return;
              Tone.Transport.stop();
              playBtn.textContent = 'PLAY AI BEAT';
         });
 
         loopCheckbox.addEventListener('change', () => {
-            if (currentSequence) {
-                currentSequence.loop = loopCheckbox.checked;
-            }
+            Tone.Transport.loop = loopCheckbox.checked;
+            Tone.Transport.loopEnd = '1m'; // Loop selama 1 measure (16 steps)
         });
         
         // --- 4. Kontrol Volume Master ---
