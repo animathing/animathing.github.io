@@ -2,75 +2,275 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Music Studio | Neon</title>
+    <meta name="viewport" content="width=device-width, initial-
+
+scale=1.0">
+    <title>AI Music Studio | Neon (Vanilla JS)</title>
 
     <!-- Meta Tags untuk SEO dan Social Sharing -->
-    <meta name="description" content="Ciptakan musik dengan kekuatan AI. Bangun ketukan, buat melodi, dan jelajahi suara baru di Neon AI Music Studio.">
+    <meta name="description" content="Ciptakan musik dengan kekuatan 
+
+AI. Bangun ketukan, buat melodi, dan jelajahi suara baru di Neon AI 
+
+Music Studio.">
     <meta property="og:title" content="AI Music Studio | Neon"/>
-    <meta property="og:description" content="Ciptakan musik dengan kekuatan AI. Bangun ketukan, buat melodi, dan jelajahi suara baru."/>
+    <meta property="og:description" content="Ciptakan musik dengan 
+
+kekuatan AI. Bangun ketukan, buat melodi, dan jelajahi suara baru."/>
     <meta property="og:type" content="website"/>
-    <meta property="og:image" content="https://placehold.co/1200x630/0a0a0a/ffffff?text=AI+Music+Studio"/>
+    <meta property="og:image" 
+
+content="https://placehold.co/1200x630/0a0a0a/ffffff?text=AI+Music
+
++Studio"/>
     <meta property="og:url" content="https://example.com"/>
     <meta property="twitter:card" content="summary_large_image"/>
-    <meta property="twitter:image" content="https://placehold.co/1200x630/0a0a0a/ffffff?text=AI+Music+Studio"/>
+    <meta property="twitter:image" 
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+content="https://placehold.co/1200x630/0a0a0a/ffffff?text=AI+Music
+
++Studio"/>
 
     <!-- Google Fonts: Orbitron -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" 
+
+crossorigin>
+    <link href="https://fonts.googleapis.com/css2?
+
+family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
     <!-- Tone.js untuk Audio -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <script 
+
+src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></sc
+
+ript>
 
     <style>
-        /* Custom Styles & Tailwind Config */
+        /* CSS Reset & Basic Styles */
+        :root {
+            --bg-color: #0a0a0a;
+            --primary-text: #e0e0e0;
+            --container-bg: rgba(16, 16, 16, 0.7);
+            --border-color: #374151;
+            --blue-glow: #00aaff;
+            --pink-glow: #ff00ff;
+            --blue-base: #2563eb;
+            --pink-base: #db2777;
+            --gray-light: #4b5563;
+            --gray-dark: #1f2937;
+            --gray-text: #9ca3af;
+            --red-error: #f87171;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Orbitron', sans-serif;
-            background-color: #0a0a0a;
-            color: #e0e0e0;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
             overflow-x: hidden;
-        }
-
-        /* Custom glow effect */
-        .glow {
-            box-shadow: 0 0 5px #00f, 0 0 10px #00f, 0 0 15px #00f;
-        }
-        .glow-pink {
-            box-shadow: 0 0 5px #f0f, 0 0 10px #f0f, 0 0 15px #f0f;
-        }
-
-        /* Custom kelas untuk transisi */
-        .btn {
-            @apply px-5 py-3 rounded-lg font-bold text-white uppercase tracking-wider transition-all duration-300 ease-in-out;
-        }
-        .btn-primary {
-            @apply bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/50;
-        }
-        .btn-secondary {
-            @apply bg-pink-600 hover:bg-pink-500 hover:shadow-lg hover:shadow-pink-500/50;
-        }
-        .btn:disabled {
-            @apply bg-gray-700 text-gray-500 cursor-not-allowed hover:shadow-none;
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
         
-        /* Gaya untuk sampler pad */
+        /* Main App Container */
+        #app-container {
+            width: 100%;
+            max-width: 64rem; /* 1024px */
+            margin: auto;
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            box-shadow: 0 0 25px rgba(0, 170, 255, 0.15);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+        header h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        header h1 span {
+            color: var(--blue-glow);
+        }
+        #master-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Main Content Grid */
+        main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        /* Section styling */
+        section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .control-section {
+             background-color: rgba(31, 41, 55, 0.5);
+             border: 1px solid var(--border-color);
+             padding: 1.5rem;
+             border-radius: 0.5rem;
+             display: flex;
+             flex-direction: column;
+             gap: 1rem;
+        }
+
+        /* Sampler Pads */
+        #sampler-pads {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
         .sampler-pad {
-            @apply w-full h-24 sm:h-28 md:h-32 bg-gray-800/50 border-2 border-blue-500/50 rounded-lg cursor-pointer flex items-center justify-center text-lg font-bold transition-all duration-150 ease-in-out transform hover:scale-105 hover:bg-blue-600/70;
+            width: 100%;
+            height: 7rem;
+            background-color: rgba(55, 65, 81, 0.5);
+            border: 2px solid rgba(37, 99, 235, 0.5);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            font-weight: 700;
+            transition: all 0.15s ease-in-out;
             backdrop-filter: blur(5px);
         }
-        .sampler-pad.active {
-            @apply scale-105 bg-blue-500 shadow-lg shadow-blue-400/50;
-            transform: scale(1.05) translateY(-2px);
+        .sampler-pad:hover {
+            transform: scale(1.05);
+            background-color: rgba(37, 99, 235, 0.7);
         }
-        
-        /* Spinner untuk loading */
+        .sampler-pad.active {
+            transform: scale(1.05) translateY(-2px);
+            background-color: var(--blue-base);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+        }
+
+        /* Visualizer */
+        #visualizer-container {
+            height: 6rem;
+            background-color: rgba(31, 41, 55, 0.5);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 2px;
+            border: 1px solid var(--border-color);
+        }
+        .visualizer-bar {
+            width: 100%;
+            background-color: rgba(37, 99, 235, 0.8);
+            border-top-left-radius: 2px;
+            border-top-right-radius: 2px;
+            transition: height 0.1s ease-out;
+            box-shadow: 0 0 3px var(--blue-glow), 0 0 5px var(--blue-
+
+glow);
+        }
+
+        /* AI Generator & Controls */
+        #ai-prompt {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--gray-light);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            color: var(--primary-text);
+        }
+        #ai-prompt:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--blue-base);
+        }
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease-in-out;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: var(--blue-base);
+        }
+        .btn-primary:hover {
+            background-color: #3b82f6;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        .btn-secondary {
+            background-color: var(--pink-base);
+        }
+        .btn-secondary:hover {
+             background-color: #ec4899;
+             box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+        }
+        .btn:disabled {
+            background-color: var(--gray-light);
+            color: var(--gray-text);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #stop-sequence-btn {
+            background-color: var(--gray-dark);
+        }
+        #stop-sequence-btn:hover:not(:disabled) {
+            background-color: #ef4444;
+        }
+        #playback-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Loading Spinner */
+        #loading-indicator {
+            display: none; /* Initially hidden */
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 1.125rem;
+        }
         .spinner {
             border: 4px solid rgba(255, 255, 255, 0.2);
-            border-left-color: #00aaff;
+            border-left-color: var(--blue-glow);
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -80,86 +280,139 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Visualizer bar */
-        .visualizer-bar {
-            @apply w-full bg-blue-500/80 rounded-t-sm transition-all duration-100 ease-out;
-            box-shadow: 0 0 3px #00f, 0 0 5px #00f;
+        /* Other UI Elements */
+        #error-message {
+            color: var(--red-error);
+            text-align: center;
+            min-height: 1.5rem;
+        }
+        #generated-song-info {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        #song-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue-glow);
+        }
+        #song-bpm {
+            color: var(--gray-text);
+        }
+        #loop-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            margin-top: 1rem;
+            color: var(--gray-text);
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) { /* md breakpoint */
+            header {
+                flex-direction: row;
+            }
+            main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            section h2 {
+                text-align: left;
+            }
+            #playback-controls {
+                flex-direction: row;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen bg-black/90 flex items-center justify-center p-4">
+<body>
 
-    <div id="app-container" class="w-full max-w-5xl mx-auto bg-gray-900/60 border border-gray-700 rounded-2xl shadow-2xl shadow-blue-500/20 p-4 sm:p-6 md:p-8 space-y-8">
+    <div id="app-container">
         
-        <!-- Header -->
-        <header class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-700 pb-6">
-            <h1 class="text-3xl md:text-4xl font-black tracking-wider text-white uppercase">
-                AI <span class="text-blue-400">Music</span> Studio
-            </h1>
-            <div id="master-controls" class="flex items-center gap-3">
-                <label for="volume" class="font-semibold">VOLUME</label>
-                <input type="range" id="volume" min="0" max="1" value="0.5" step="0.01" class="w-32 cursor-pointer"/>
+        <header>
+            <h1>AI <span>Music</span> Studio</h1>
+            <div id="master-controls">
+                <label for="volume">VOLUME</label>
+                <input type="range" id="volume" min="0" max="1" 
+
+value="0.5" step="0.01" />
             </div>
         </header>
 
-        <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Kolom Kiri: Sampler & Visualizer -->
-            <div class="space-y-8">
-                <!-- Instrument Sampler -->
+        <main>
+            <!-- Kolom Kiri -->
+            <div class="column">
                 <section id="instrument-sampler">
-                    <h2 class="text-2xl font-bold mb-4 text-center sm:text-left">SOUND SAMPLER</h2>
-                    <div id="sampler-pads" class="grid grid-cols-3 gap-3">
+                    <h2>SOUND SAMPLER</h2>
+                    <div id="sampler-pads">
                         <!-- Sample pads akan dibuat oleh JS -->
                     </div>
                 </section>
-                 <!-- Visualizer -->
                 <section id="visualizer-section">
-                    <h2 class="text-2xl font-bold mb-4 text-center sm:text-left">BEAT LIGHTS</h2>
-                    <div id="visualizer-container" class="h-24 bg-gray-800/50 rounded-lg p-2 flex items-end justify-between gap-1 border border-gray-700">
+                    <h2>BEAT LIGHTS</h2>
+                    <div id="visualizer-container">
                          <!-- Visualizer bar akan dibuat oleh JS -->
                     </div>
                 </section>
             </div>
 
-            <!-- Kolom Kanan: AI Generator & Kontrol -->
-            <div class="space-y-8">
-                 <!-- AI Song Generator -->
-                <section id="ai-song-generator" class="bg-gray-800/50 border border-gray-700 p-6 rounded-lg">
-                    <h2 class="text-2xl font-bold mb-4">AUTOMATIC SONG MAKER</h2>
-                    <div class="space-y-4">
-                        <label for="ai-prompt" class="block">Deskripsikan ide lagu Anda:</label>
-                        <input type="text" id="ai-prompt" placeholder="contoh: chill lofi hip hop" class="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button id="generate-song-btn" class="btn btn-primary w-full">GENERATE BEAT</button>
-                        <div id="loading-indicator" class="hidden items-center justify-center gap-3 text-lg">
-                            <span>Generating...</span>
-                            <div class="spinner"></div>
-                        </div>
-                         <p id="error-message" class="text-red-400 text-center"></p>
+            <!-- Kolom Kanan -->
+            <div class="column">
+                <section id="ai-song-generator" class="control-
+
+section">
+                    <h2>AUTOMATIC SONG MAKER</h2>
+                    <label for="ai-prompt">Deskripsikan ide lagu 
+
+Anda:</label>
+                    <input type="text" id="ai-prompt" 
+
+placeholder="contoh: chill lofi hip hop">
+                    <button id="generate-song-btn" class="btn btn-
+
+primary">GENERATE BEAT</button>
+                    <div id="loading-indicator">
+                        <span>Generating...</span>
+                        <div class="spinner"></div>
                     </div>
-                    <div id="generated-song-info" class="mt-4 text-center">
-                        <h3 id="song-title" class="text-xl font-bold text-blue-300"></h3>
-                        <p id="song-bpm" class="text-md text-gray-400"></p>
+                    <p id="error-message"></p>
+                    <div id="generated-song-info">
+                        <h3 id="song-title"></h3>
+                        <p id="song-bpm"></p>
                     </div>
                 </section>
 
-                <!-- Kontrol Playback -->
-                <section id="sequencer-controls" class="bg-gray-800/50 border border-gray-700 p-6 rounded-lg">
-                    <h2 class="text-2xl font-bold mb-4">PLAYBACK</h2>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                         <button id="play-sequence-btn" class="btn btn-secondary flex-1" disabled>PLAY AI BEAT</button>
-                         <button id="stop-sequence-btn" class="btn bg-gray-700 hover:bg-red-600 flex-1" disabled>STOP</button>
+                <section id="sequencer-controls" class="control-
+
+section">
+                    <h2>PLAYBACK</h2>
+                    <div id="playback-controls">
+                         <button id="play-sequence-btn" class="btn 
+
+btn-secondary" style="flex: 1;" disabled>PLAY AI BEAT</button>
+                         <button id="stop-sequence-btn" class="btn" 
+
+style="flex: 1;" disabled>STOP</button>
                     </div>
-                     <div class="flex items-center justify-center mt-4">
-                        <input type="checkbox" id="loop-sequence" checked class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
-                        <label for="loop-sequence" class="ml-2">LOOP</label>
+                    <div id="loop-container">
+                        <input type="checkbox" id="loop-sequence" 
+
+checked>
+                        <label for="loop-sequence">LOOP</label>
                     </div>
                 </section>
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="text-center border-t border-gray-700 pt-6 mt-4">
-            <p class="text-gray-500">Neon AI Music Studio</p>
+        <footer>
+            <p>Neon AI Music Studio</p>
         </footer>
     </div>
 
@@ -172,20 +425,32 @@
                 console.log("AudioContext dimulai");
             }
         };
-        document.body.addEventListener('click', initAudio, { once: true });
+        document.body.addEventListener('click', initAudio, { once: 
+
+true });
 
         // Referensi Elemen DOM
         const volumeControl = document.getElementById('volume');
-        const samplerPadsContainer = document.getElementById('sampler-pads');
-        const generateBtn = document.getElementById('generate-song-btn');
+        const samplerPadsContainer = document.getElementById
+
+('sampler-pads');
+        const generateBtn = document.getElementById('generate-song-
+
+btn');
         const playBtn = document.getElementById('play-sequence-btn');
         const stopBtn = document.getElementById('stop-sequence-btn');
         const loopCheckbox = document.getElementById('loop-sequence');
-        const loadingIndicator = document.getElementById('loading-indicator');
+        const loadingIndicator = document.getElementById('loading-
+
+indicator');
         const songTitleEl = document.getElementById('song-title');
         const songBpmEl = document.getElementById('song-bpm');
-        const visualizerContainer = document.getElementById('visualizer-container');
-        const errorMessageEl = document.getElementById('error-message');
+        const visualizerContainer = document.getElementById
+
+('visualizer-container');
+        const errorMessageEl = document.getElementById('error-
+
+message');
 
         // Pengaturan Audio
         Tone.Destination.volume.value = Tone.gainToDb(0.5);
@@ -197,7 +462,9 @@
         samplerNotes.forEach(note => {
             samplerSynths[note] = new Tone.Synth({
                 oscillator: { type: 'fmsquare' },
-                envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.8 }
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, 
+
+release: 0.8 }
             }).toDestination();
             const pad = document.createElement('div');
             pad.classList.add('sampler-pad');
@@ -209,8 +476,12 @@
                 samplerSynths[note].triggerAttackRelease(note, '8n');
                 pad.classList.add('active');
             });
-            pad.addEventListener('mouseup', () => pad.classList.remove('active'));
-            pad.addEventListener('mouseleave', () => pad.classList.remove('active'));
+            pad.addEventListener('mouseup', () => 
+
+pad.classList.remove('active'));
+            pad.addEventListener('mouseleave', () => 
+
+pad.classList.remove('active'));
         });
 
         // --- 2. Visualizer ---
@@ -221,13 +492,19 @@
             bar.style.height = '1%';
             visualizerContainer.appendChild(bar);
         }
-        const visualizerBars = visualizerContainer.querySelectorAll('.visualizer-bar');
+        const visualizerBars = visualizerContainer.querySelectorAll
+
+('.visualizer-bar');
         const meter = new Tone.Meter();
         Tone.Destination.connect(meter);
         function updateVisualizer() {
-            const level = Tone.Transport.state === 'started' ? Tone.dbToGain(meter.getValue()) : 0;
+            const level = Tone.Transport.state === 'started' ? 
+
+Tone.dbToGain(meter.getValue()) : 0;
             visualizerBars.forEach((bar, i) => {
-                const height = Math.max(1, level * 100 * (1 - Math.abs(i - numBars / 2) / (numBars / 1.5)) * 2);
+                const height = Math.max(1, level * 100 * (1 - 
+
+Math.abs(i - numBars / 2) / (numBars / 1.5)) * 2);
                 bar.style.height = `${height}%`;
             });
             requestAnimationFrame(updateVisualizer);
@@ -253,9 +530,13 @@
         }
 
         generateBtn.addEventListener('click', async () => {
-            const userPrompt = document.getElementById('ai-prompt').value.trim();
+            const userPrompt = document.getElementById('ai-
+
+prompt').value.trim();
             if (!userPrompt) {
-                errorMessageEl.textContent = "Mohon masukkan deskripsi lagu.";
+                errorMessageEl.textContent = "Mohon masukkan deskripsi 
+
+lagu.";
                 return;
             }
             await initAudio(); // Pastikan audio context aktif
@@ -273,16 +554,44 @@
             try {
                 // Konfigurasi untuk Gemini API
                 const apiKey = ""; // Disediakan oleh environment
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const apiUrl = 
 
-                const systemPrompt = `You are a music generator assistant. Based on the user's prompt, create a simple 16-step musical pattern. Respond ONLY with a JSON object.
-                The JSON must have these properties: "bpm" (number between 80-160), "synthType" (string, one of: "fmsquare", "sawtooth", "triangle8", "pulse"), "kickPattern" (array of 16 numbers, 1 for a hit, 0 for a rest), "snarePattern" (array of 16 numbers), and "synthPattern" (array of 16 strings, containing musical notes like "C4", "G3", or null for a rest).
-                Example for "funky": { "bpm": 120, "synthType": "fmsquare", "kickPattern": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0], "snarePattern": [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], "synthPattern": ["C4", null, "G4", "C4", null, "A4", null, "G4", "F4", null, "C4", null, null, "D4", "E4", null] }`;
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-
+
+flash:generateContent?key=${apiKey}`;
+
+                const systemPrompt = `You are a music generator 
+
+assistant. Based on the user's prompt, create a simple 16-step musical 
+
+pattern. Respond ONLY with a JSON object.
+                The JSON must have these properties: "bpm" (number 
+
+between 80-160), "synthType" (string, one of: "fmsquare", "sawtooth", 
+
+"triangle8", "pulse"), "kickPattern" (array of 16 numbers, 1 for a 
+
+hit, 0 for a rest), "snarePattern" (array of 16 numbers), and 
+
+"synthPattern" (array of 16 strings, containing musical notes like 
+
+"C4", "G3", or null for a rest).
+                Example for "funky": { "bpm": 120, "synthType": 
+
+"fmsquare", "kickPattern": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0], 
+
+"snarePattern": [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], "synthPattern": 
+
+["C4", null, "G4", "C4", null, "A4", null, "G4", "F4", null, "C4", 
+
+null, null, "D4", "E4", null] }`;
 
                 const payload = {
                     contents: [{
                         role: "user",
-                        parts: [{ text: `System prompt: ${systemPrompt}. User prompt: "${userPrompt}"` }]
+                        parts: [{ text: `System prompt: 
+
+${systemPrompt}. User prompt: "${userPrompt}"` }]
                     }],
                     generationConfig: {
                         responseMimeType: "application/json",
@@ -296,37 +605,67 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.statusText}`);
+                    throw new Error(`API Error: 
+
+${response.statusText}`);
                 }
 
                 const result = await response.json();
                 
-                if (!result.candidates || !result.candidates[0].content.parts[0].text) {
+                if (!result.candidates || !result.candidates
+
+[0].content.parts[0].text) {
                      throw new Error("Respon AI tidak valid.");
                 }
 
-                const musicData = JSON.parse(result.candidates[0].content.parts[0].text);
+                const musicData = JSON.parse(result.candidates
+
+[0].content.parts[0].text);
 
                 // Membuat instrumen
-                kick = new Tone.MembraneSynth({ pitchDecay: 0.02, octaves: 6, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.5, sustain: 0.01, release: 0.4, attackCurve: "exponential" } }).toDestination();
-                snare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.005, decay: 0.1, sustain: 0 } }).toDestination();
-                synth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: musicData.synthType || 'fmsquare' } }).toDestination();
+                kick = new Tone.MembraneSynth({ pitchDecay: 0.02, 
+
+octaves: 6, oscillator: { type: "sine" }, envelope: { attack: 0.001, 
+
+decay: 0.5, sustain: 0.01, release: 0.4, attackCurve: "exponential" } 
+
+}).toDestination();
+                snare = new Tone.NoiseSynth({ noise: { type: 'white' 
+
+}, envelope: { attack: 0.005, decay: 0.1, sustain: 0 } 
+
+}).toDestination();
+                synth = new Tone.PolySynth(Tone.Synth, { oscillator: { 
+
+type: musicData.synthType || 'fmsquare' } }).toDestination();
 
                 // Membuat sekuens
-                const kickSequence = new Tone.Sequence((time, value) => {
+                const kickSequence = new Tone.Sequence((time, value) 
+
+=> {
                     if (value) kick.triggerAttack("C1", time);
                 }, musicData.kickPattern, "16n").start(0);
 
-                const snareSequence = new Tone.Sequence((time, value) => {
+                const snareSequence = new Tone.Sequence((time, value) 
+
+=> {
                     if (value) snare.triggerAttack(time);
                 }, musicData.snarePattern, "16n").start(0);
 
-                const synthSequence = new Tone.Sequence((time, note) => {
-                    if (note) synth.triggerAttackRelease(note, "16n", time);
+                const synthSequence = new Tone.Sequence((time, note) 
+
+=> {
+                    if (note) synth.triggerAttackRelease(note, "16n", 
+
+time);
                 }, musicData.synthPattern, "16n").start(0);
                 
-                currentSequences = [kickSequence, snareSequence, synthSequence];
-                loopCheckbox.dispatchEvent(new Event('change')); // Terapkan status loop
+                currentSequences = [kickSequence, snareSequence, 
+
+synthSequence];
+                loopCheckbox.dispatchEvent(new Event('change')); // 
+
+Terapkan status loop
 
                 Tone.Transport.bpm.value = musicData.bpm;
                 Tone.Transport.start();
@@ -338,7 +677,9 @@
 
             } catch (error) {
                 console.error("Error generating song:", error);
-                errorMessageEl.textContent = "Gagal membuat musik. Coba lagi.";
+                errorMessageEl.textContent = "Gagal membuat musik. 
+
+Coba lagi.";
             } finally {
                 loadingIndicator.style.display = 'none';
                 generateBtn.disabled = false;
@@ -366,12 +707,16 @@
 
         loopCheckbox.addEventListener('change', () => {
             Tone.Transport.loop = loopCheckbox.checked;
-            Tone.Transport.loopEnd = '1m'; // Loop selama 1 measure (16 steps)
+            Tone.Transport.loopEnd = '1m'; // Loop selama 1 measure 
+
+(16 steps)
         });
         
         // --- 4. Kontrol Volume Master ---
         volumeControl.addEventListener('input', (e) => {
-            const volumeDb = Tone.gainToDb(parseFloat(e.target.value));
+            const volumeDb = Tone.gainToDb(parseFloat
+
+(e.target.value));
             Tone.Destination.volume.rampTo(volumeDb, 0.1);
         });
     });
